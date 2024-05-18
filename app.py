@@ -3,9 +3,8 @@ import os
 import time
 from flask import Flask, render_template, send_from_directory
 from os.path import exists, join
+from config import *
 
-MD_DIR = '/home/ec2-user/docs'
-FRONTPAGE_TITLE = 'kmrasmussen markdown docs'
 assert exists(MD_DIR)
 app = Flask(__name__)
 
@@ -44,4 +43,4 @@ def doc(filename):
     return render_template('doc.html', content=html_content)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=1234)
+    app.run(host='0.0.0.0', port=PORT)
