@@ -1,7 +1,7 @@
 import markdown2
 import os
 import time
-from flask import Flask, render_template, send_from_directory
+from flask import Flask, render_template, send_from_directory, request
 from os.path import exists, join
 from config import *
 
@@ -34,11 +34,22 @@ def index():
 
 @app.route('/doc/<filename>')
 def doc(filename):
+    access_key = request.args.get('access_key')
+    print(f"access_key: {access_key}")
     filename = join(MD_DIR, filename)
     if not os.path.exists(filename):
         return "File not found", 404
     with open(filename, 'r') as f:
         md_content = f.read()
+    
+    if md_content.startswith("password: "):
+        md_firstline = md_content.split("\n")[0]
+        password = md_firstline.split(": ")[1].strip()
+        print('checking password', repr(access_key), repr(password), '|')
+        if access_key != password:
+            return "Access Denied", 403
+        md_content = "\n".join(md_content.split("\n")[1:])
+    
     html_content = markdown2.markdown(md_content, extras=["fenced-code-blocks", "code-friendly", "code-color"])
     return render_template('doc.html', content=html_content)
 
